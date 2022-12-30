@@ -106,14 +106,6 @@ T mix(const T &a, const T &b, const T &mix)
     return b * mix + a * (T(1) - mix);
 }
 
-// This is the main trace function. It takes a ray as argument (defined by its origin
-// and direction). We test if this ray intersects any of the geometry in the scene.
-// If the ray intersects an object, we compute the intersection point, the normal
-// at the intersection point, and shade this point using this information.
-// Shading depends on the surface property (is it transparent, reflective, diffuse).
-// The function returns a color for the ray. If the ray intersects an object, it
-// returns the color of the object at the intersection point, otherwise it returns
-// the background color.
 template<typename T>
 Vec3<T> trace(const Vec3<T> &rayorig, const Vec3<T> &raydir, 
     const std::vector<Sphere<T> *> &spheres, const int &depth)
