@@ -1,8 +1,6 @@
-// OpenGl
-//#include <GL/glew.h>
+
 #include "GL/glut.h"
 
-// g++ -o OpenGL -O3 main.cpp -lglut -lGL -lGLU
 #include <cstdlib>
 #include <cstdio>
 #include <cmath>
@@ -22,11 +20,11 @@ class Vec3
 {
 public:
     T x, y, z;
-    // Vector constructors.
+
     Vec3() : x(T(0)), y(T(0)), z(T(0)) {}
     Vec3(T xx) : x(xx), y(xx), z(xx) {}
     Vec3(T xx, T yy, T zz) : x(xx), y(yy), z(zz) {}
-    // Vector normalisation.
+
     Vec3& normalize()
     {
         T nor = x * x + y * y + z * z;
@@ -36,7 +34,7 @@ public:
         }
         return *this;
     }
-    // Vector operators.
+
     Vec3<T> operator * (const T &f) const { return Vec3<T>(x * f, y * f, z * f); }
     Vec3<T> operator * (const Vec3<T> &v) const { return Vec3<T>(x * v.x, y * v.y, z * v.z); }
     T dot(const Vec3<T> &v) const { return x * v.x + y * v.y + z * v.z; }
@@ -66,33 +64,28 @@ public:
         transparency(transp), emissionColor(ec), radius2(r * r)
     {}
 
-    // compute a ray-sphere intersection using the geometric solution
+
     bool intersect(const Vec3<T> &rayorig, const Vec3<T> &raydir, T *t0 = NULL, T *t1 = NULL) const
     {
-        // we start with a vector (l) from the ray origin (rayorig) to the center of the curent sphere.
+
         Vec3<T> l = center - rayorig;
-        // tca is a vector length in the direction of the normalise raydir.
-        // its length is streched using dot until it forms a perfect right angle triangle with the l vector.
+
         T tca = l.dot(raydir);
-        // if tca is < 0, the raydir is going in the opposite direction.  No need to go further.  Return false.
+
         if (tca < 0) return false;
-        // if we keep on into the code, it's because the raydir may still hit the sphere.
-        // l.dot(l) gives us the l vector length to the power of 2.  Then we use Pythagoras' theorem.
-        // remove the length tca to the power of two (tca * tca) and we get a distance from the center of the sphere to the power of 2 (d2).
+        
         T d2 = l.dot(l) - (tca * tca);
-        // if this distance to the center (d2) is greater than the radius to the power of 2 (radius2), the raydir direction is missing the sphere.
-        // No need to go further.  Return false.
+
         if (d2 > radius2) return false;
-        // Pythagoras' theorem again: radius2 is the hypotenuse and d2 is one of the side.  Substraction gives the third side to the power of 2.
-        // Using sqrt, we obtain the length thc.  thc is how deep tca goes into the sphere.
+
         T thc = sqrt(radius2 - d2);
         if (t0 != NULL && t1 != NULL) {
-            // remove thc to tca and you get the length from the ray origin to the surface hit point of the sphere.
+
             *t0 = tca - thc;
-            // add thc to tca and you get the length from the ray origin to the surface hit point of the back side of the sphere.
+
             *t1 = tca + thc;
         }
-        // There is a intersection with a sphere, t0 and t1 have surface distances values.  Return true.
+
         return true;
     }
 };
@@ -112,60 +105,54 @@ Vec3<T> trace(const Vec3<T> &rayorig, const Vec3<T> &raydir,
 {
     T tnear = INFINITY;
     const Sphere<T> *sphere = NULL;
-    // Try to find intersection of this raydir with the spheres in the scene
+
     for (unsigned i = 0; i < spheres.size(); ++i) {
         T t0 = INFINITY, t1 = INFINITY;
         if (spheres[i]->intersect(rayorig, raydir, &t0, &t1)) {
-            // is the rayorig inside the sphere (t0 < 0)?  If so, use the second hit (t0 = t1)
+
             if (t0 < 0) t0 = t1;
-            // tnear is the last sphere intersection (or infinity).  Is t0 in front of tnear?
+
             if (t0 < tnear) {
-                // if so, update tnear to this closer t0 and update the closest sphere
+
                 tnear = t0;
                 sphere = spheres[i];
             }
         }
     }
-    // At this moment in the program, we have the closest sphere (sphere) and the closest hit position (tnear)
-    // For this pixel, if there's no intersection with a sphere, return a Vec3 with the background color.
+
     if (!sphere) return Vec3<T>(.5); // Grey background color.
-    // if we keep on with the code, it is because we had an intersection with at least one sphere.
+
     Vec3<T> surfaceColor = 0; // initialisation of the color of the ray/surface of the object intersected by the ray.
     Vec3<T> phit = rayorig + (raydir * tnear); // point of intersection.
     Vec3<T> nhit = phit - sphere->center; // normal at the intersection point.
-    // if the normal and the view direction are not opposite to each other,
-    // reverse the normal direction.
+
     if (raydir.dot(nhit) > 0) nhit = -nhit;
     nhit.normalize(); // normalize normal direction
-    // The angle between raydir and the normal at point hit (not used).
-    //T s_angle = acos(raydir.dot(nhit)) / ( sqrt(raydir.dot(raydir)) * sqrt(nhit.dot(nhit)));
-    //T s_incidence = sin(s_angle);
+
     T bias = 1e-5; // add some bias to the point from which we will be tracing
-    // Do we have transparency or reflection?
+
     if ((sphere->transparency > 0 || sphere->reflection > 0) && depth < MAX_RAY_DEPTH) {
         T IdotN = raydir.dot(nhit); // raydir.normal
-        // I and N are not pointing in the same direction, so take the invert.
+
         T facingratio = std::max(T(0), -IdotN);
-        // change the mix value between reflection and refraction to tweak the effect (fresnel effect)
+
         T fresneleffect = mix<T>(pow(1 - facingratio, 3), 1, 0.1);
-        // compute reflection direction (not need to normalize because all vectors
-        // are already normalized)
+
         Vec3<T> refldir = raydir - nhit * 2 * raydir.dot(nhit);
         Vec3<T> reflection = trace(phit + (nhit * bias), refldir, spheres, depth + 1);
         Vec3<T> refraction = 0;
-        // if the sphere is also transparent compute refraction ray (transmission)
+
         if (sphere->transparency) {
             T ior = 1.2, eta = 1 / ior;
             T k = 1 - eta * eta * (1 - IdotN * IdotN);
             Vec3<T> refrdir = raydir * eta - nhit * (eta *  IdotN + sqrt(k));
             refraction = trace(phit - nhit * bias, refrdir, spheres, depth + 1);
         }
-        // the result is a mix of reflection and refraction (if the sphere is transparent)
+
         surfaceColor = (reflection * fresneleffect + refraction * (1 - fresneleffect) * sphere->transparency) * sphere->surfaceColor;
     }
     else {
-        // it's a diffuse object, no need to raytrace any further
-        // Look at all sphere to find lights
+
         double shadow = 1.0;
         for (unsigned i = 0; i < spheres.size(); ++i) {
             if (spheres[i]->emissionColor.x > 0) {
@@ -178,8 +165,7 @@ Vec3<T> trace(const Vec3<T> &rayorig, const Vec3<T> &raydir,
                 for (unsigned j = 0; j < spheres.size(); ++j) {
                     if (i != j) {
                         T t0, t1;
-                        // Does the ray from point hit to the light intersect an object?
-                        // If so, calculate the shadow.
+
                         if (spheres[j]->intersect(phit + (nhit * bias), lightDirection, &t0, &t1)) {
                             shadow = std::max(0.0, shadow - (1.0 - spheres[j]->transparency));
                             transmission = transmission * spheres[j]->surfaceColor * shadow;
@@ -187,7 +173,7 @@ Vec3<T> trace(const Vec3<T> &rayorig, const Vec3<T> &raydir,
                         }
                     }
                 }
-                // For each light found, we add light transmission to the pixel.
+Z
                 surfaceColor += sphere->surfaceColor * transmission * 
                     std::max(T(0), nhit.dot(lightDirection)) * spheres[i]->emissionColor;
             }
@@ -196,9 +182,6 @@ Vec3<T> trace(const Vec3<T> &rayorig, const Vec3<T> &raydir,
     return surfaceColor + sphere->emissionColor;
 }
 
-// Main rendering function. We compute a camera ray for each pixel of the image,
-// trace it and return a color. If the ray hits a sphere, we return the color of the
-// sphere at the intersection point, else we return the background color.
 Vec3<double> *image = new Vec3<double>[width * height];
 static Vec3<double> cam_pos = Vec3<double>(0);
 template<typename T>
