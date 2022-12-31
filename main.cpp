@@ -1,3 +1,4 @@
+//g++ -o OpenGL -O3 main.cpp -lglut -lGL -lGLU
 
 #include "GL/glut.h"
 
@@ -173,7 +174,6 @@ Vec3<T> trace(const Vec3<T> &rayorig, const Vec3<T> &raydir,
                         }
                     }
                 }
-Z
                 surfaceColor += sphere->surfaceColor * transmission * 
                     std::max(T(0), nhit.dot(lightDirection)) * spheres[i]->emissionColor;
             }
@@ -315,19 +315,19 @@ int main(int argc, char **argv)
     // position, radius, surface color, reflectivity, transparency, emission color
     spheres.push_back(new Sphere<double>(Vec3<double>(0, -10004, -20), 10000, Vec3<double>(0.2), 0.0, 0.0));
 
-    spheres.push_back(new Sphere<double>(Vec3<double>(3, 0, -15), 2, Vec3<double>(1.00, 0.1, 0.1), 0.65, 0.95));
-    spheres.push_back(new Sphere<double>(Vec3<double>(1, -1, -18), 1, Vec3<double>(1.0, 1.0, 1.0), 0.9, 0.9));
-    spheres.push_back(new Sphere<double>(Vec3<double>(-2, 2, -15), 2, Vec3<double>(0.1, 0.1, 1.0), 0.05, 0.5));
-    spheres.push_back(new Sphere<double>(Vec3<double>(-4, 3, -18), 1, Vec3<double>(0.1, 1.0, 0.1), 0.3, 0.7));
+    spheres.push_back(new Sphere<double>(Vec3<double>(3, 0, -15), 2, Vec3<double>(1.0, 0.1, 0.1), 0.65, 0.95)); //Red    
+    spheres.push_back(new Sphere<double>(Vec3<double>(-3, 2, -15), 1, Vec3<double>(0.1, 0.1, 1.0), 0.05, 0.5)); //Blue
+    spheres.push_back(new Sphere<double>(Vec3<double>(-5, 3, -18), 1, Vec3<double>(0.1, 1.0, 0.1), 0.3, 0.7)); //Green
+    spheres.push_back(new Sphere<double>(Vec3<double>(0, -1, -18), 2, Vec3<double>(1.0, 1.0, 1.0), 0.9, 0.9)); //Transparent White
 
-    spheres.push_back(new Sphere<double>(Vec3<double>(-4, 0, -25), 1, Vec3<double>(1.00, 0.1, 0.1), 0.65, 0.95));
-    spheres.push_back(new Sphere<double>(Vec3<double>(-1, 1, -25), 2, Vec3<double>(1.0, 1.0, 1.0), 0.0, 0.0));
-    spheres.push_back(new Sphere<double>(Vec3<double>(2, 2, -25), 1, Vec3<double>(0.1, 0.1, 1.0), 0.05, 0.5));
-    spheres.push_back(new Sphere<double>(Vec3<double>(5, 3, -25), 2, Vec3<double>(0.1, 1.0, 0.1), 0.3, 0.7));
+    spheres.push_back(new Sphere<double>(Vec3<double>(4, 3, -25), 1, Vec3<double>(1.0, 0.1, 1.0), 0.3, 0.7)); //Magenta
+    spheres.push_back(new Sphere<double>(Vec3<double>(1, 2, -25), 2, Vec3<double>(0.1, 1.0, 1.0), 0.05, 0.5)); //Cyan
+    spheres.push_back(new Sphere<double>(Vec3<double>(-5, 0, -25), 2, Vec3<double>(1.0, 1.0, 0.1), 0.65, 0.95)); //Yellow        
+    spheres.push_back(new Sphere<double>(Vec3<double>(-1, 1, -25), 2, Vec3<double>(1.0, 1.0, 1.0), 0.0, 0.0)); //Opaque White
 
     // light
-    spheres.push_back(new Sphere<double>(Vec3<double>(-10, 20, 0), 3, Vec3<double>(0), 0, 0, Vec3<double>(3)));
-    spheres.push_back(new Sphere<double>(Vec3<double>(0, 10, 0), 3, Vec3<double>(0), 0, 0, Vec3<double>(1)));
+    spheres.push_back(new Sphere<double>(Vec3<double>(-10, 20, 10), 3, Vec3<double>(0), 0, 0, Vec3<double>(3)));
+    spheres.push_back(new Sphere<double>(Vec3<double>(5, 10, -15), 3, Vec3<double>(0), 0, 0, Vec3<double>(1)));
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
