@@ -1,3 +1,3 @@
-# Computación Gráfica
+# Computer graphics
 
-Code in C++ to implement some tools for graphic computing. OpenGL and OpenCV may be needed depending on the application.
+C++ code to implement some computer graphics tools. OpenGL and OpenCV may be required depending on the application.
