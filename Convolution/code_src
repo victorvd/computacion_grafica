@@ -1,0 +1,186 @@
+#include <opencv2/opencv.hpp>
+#include <stdio.h>
+
+using namespace cv;
+
+int main(int argc, char** argv)
+{
+	if (argc != 2) {
+		printf("usage: ImgConv.out <Image_Path>\n");
+		return -1;
+	}
+	Mat image;
+	image = imread(argv[1], 1);
+	if (!image.data) {
+		printf("No image data \n");
+		return -1;
+	}
+	namedWindow("Display Image", WINDOW_AUTOSIZE);
+	imshow("Display Image", image);
+	waitKey(0);
+	return 0;
+}
+
+------------------------------------------------------------------------------------------
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <sstream>
+
+using namespace std;
+
+int main()
+{
+	string fname;
+	cout<<"Enter the file name: ";
+	cin>>fname;
+
+	vector<vector<string>> content;
+	vector<string> row;
+	string line, word;
+
+	fstream file (fname, ios::in);
+	if(file.is_open())
+	{
+		while(getline(file, line))
+		{
+		row.clear();
+
+		stringstream str(line);
+
+		while(getline(str, word, ','))
+		row.push_back(word);
+		content.push_back(row);
+		}
+	}
+	else
+	cout<<"Could not open the file\n";
+
+	for(int i=0;i<content.size();i++)
+	{
+		for(int j=0;j<content[i].size();j++)
+		{
+			cout<<content[i][j]<<" ";
+		}
+		cout<<"\n";
+	}
+
+	return 0;
+}
+
+
+-----------------------------------------------------------
+
+#include <iostream>
+#include <vector>
+#include <assert.h>
+#include <cmath>
+
+#include <opencv2/opencv.hpp>
+#include <stdio.h>
+
+#include <fstream>
+#include <string>
+#include <sstream>
+
+using namespace std;
+using namespace cv;
+
+typedef vector<double> Array;
+typedef vector<Array> Matrix;
+typedef vector<Matrix> Image;
+
+
+Image applyFilter(Image &image, Matrix &filter){
+    assert(image.size()==3 && filter.size()!=0);
+
+    int height = image[0].size();
+    int width = image[0][0].size();
+    int filterHeight = filter.size();
+    int filterWidth = filter[0].size();
+    int newImageHeight = height-filterHeight+1;
+    int newImageWidth = width-filterWidth+1;
+    int d,i,j,h,w;
+
+    Image newImage(3, Matrix(newImageHeight, Array(newImageWidth)));
+
+    for (d=0 ; d<3 ; d++) {
+        for (i=0 ; i<newImageHeight ; i++) {
+            for (j=0 ; j<newImageWidth ; j++) {
+                for (h=i ; h<i+filterHeight ; h++) {
+                    for (w=j ; w<j+filterWidth ; w++) {
+                        newImage[d][i][j] += filter[h-i][w-j]*image[d][h][w];
+                    }
+                }
+            }
+        }
+    }
+
+    return newImage;
+}
+
+Image applyFilter(Image &image, Matrix &filter, int times)
+{
+    Image newImage = image;
+    for(int i=0 ; i<times ; i++) {
+        newImage = applyFilter(newImage, filter);
+    }
+    return newImage;
+}
+
+
+int main(int argc, char** argv)
+{
+
+	if (argc != 3) {
+		printf("Formato: ImgConv.out <Image_Path> <Kernel_Path>\n");
+		return -1;
+	}
+	
+	Mat image;
+	string fname;
+	Matrix kernel;
+	vector<string> row;
+	string line, word;
+
+	image = imread(argv[1], 1);
+	
+	if (!image.data) {
+		printf("No se puede abrir el archivo de imagen \n");
+		return -1;
+	}
+
+	fstream file (argv[2], ios::in);
+	
+	if(file.is_open())
+	{
+		while(getline(file, line))
+		{
+			row.clear();
+
+			stringstream str(line);
+
+			while(getline(str, word, ','))
+			row.push_back(word);
+			
+			kernel.push_back(row);
+		}
+	}
+	
+	else	
+	printf("No se puede abrir el archivo de kernel \n");
+	
+	Image newImage = applyFilter(image,kernel);
+	
+	//imwrite("ImagenOut.jpg", newImage);
+	
+	namedWindow("Display Image", WINDOW_AUTOSIZE);
+	//imshow("Display Image", newImage);
+	waitKey(0);
+	return 0;
+}
+
+
+------------------------------------------------------
