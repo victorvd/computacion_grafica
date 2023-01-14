@@ -1,10 +1,12 @@
+#include <iostream>
+#include <vector>
+
+typedef std::vector<std::vector<float>> vectwod;
+typedef std::vector<std::vector<std::vector<float>>> vecthreed;
 
 //Función convolución---------------------------------------------------------------------------------------------
-std::vector<std::vector<std::vector<float>>> convolve(const std::vector<std::vector<std::vector<float>>> &image, const std::vector<std::vector<float>> &kernel)
+vecthreed convolve(const vecthreed &image, const vectwod &kernel)
 {
-    
-	//assert(image.size()!=0 && kernel.size()!=0);
-
 	int imageSizeY = image.size();
 	int imageSizeX = image[0].size();
 	int channels = image[0][0].size();
@@ -17,16 +19,7 @@ std::vector<std::vector<std::vector<float>>> convolve(const std::vector<std::vec
 	int kCenterX = kernelSizeY / 2;
 	int kCenterY = kernelSizeX / 2;
 
-	std::vector<std::vector<std::vector<float>>> imConvolved(newImageY, std::vector<std::vector<float>>(newImageX, std::vector<float>(channels)));
-	
-	//Mostrar valores característicos de imagen--------------------------------------------------
-	std::cout<<"Padded height = "<<imageSizeY<<std::endl;
-	std::cout<<"Padded width = "<<imageSizeX<<std::endl;
-	std::cout<<"Channels number = "<<channels<<std::endl;
-	std::cout<<"Kernel height = "<<kernelSizeY<<std::endl;
-	std::cout<<"Kernel width = "<<kernelSizeX<<std::endl;
-	std::cout<<"ImageOut height = "<<newImageY<<std::endl;
-	std::cout<<"ImageOut width = "<<newImageX<<std::endl<<std::endl;
+	vecthreed imConvolved(newImageY, vectwod(newImageX, std::vector<float>(channels)));
 
 	//Bucle para convolución---------------------------------------------------------------------
 	for (int c=0 ; c<channels ; ++c) {
@@ -59,7 +52,7 @@ std::vector<std::vector<std::vector<float>>> convolve(const std::vector<std::vec
 
 
 //Función padding valor constante---------------------------------------------------------------------------------
-std::vector<std::vector<std::vector<float>>> constPad(const std::vector<std::vector<std::vector<float>>> &image,const std::vector<std::vector<float>> &kernel,int cons)
+vecthreed constPad(const vecthreed &image,const vectwod &kernel,int cons)
 {
 	int imageSizeY = image.size();
 	int imageSizeX = image[0].size();
@@ -73,7 +66,7 @@ std::vector<std::vector<std::vector<float>>> constPad(const std::vector<std::vec
 	int newImageY = kCenterY*2 + imageSizeY;
 	
 	//inicializar y poblar matriz para resultado--------------------------------------------------
-	std::vector<std::vector<std::vector<float>>> imgPad(newImageY, std::vector<std::vector<float>>(newImageX, std::vector<float>(channels)));
+	vecthreed imgPad(newImageY, vectwod(newImageX, std::vector<float>(channels)));
 	
 	for (int c=0 ; c<channels ; ++c) {
 		for (int i=0 ; i<newImageY ; ++i) {
@@ -97,7 +90,7 @@ std::vector<std::vector<std::vector<float>>> constPad(const std::vector<std::vec
 
 
 //Función padding expansiones-----------------------------------------------------------------------------------
-std::vector<std::vector<std::vector<float>>> expPad(const std::vector<std::vector<std::vector<float>>> &image,const std::vector<std::vector<float>> &kernel)
+vecthreed expPad(const vecthreed &image,const vectwod &kernel)
 {
 	int imageSizeY = image.size();
 	int imageSizeX = image[0].size();
@@ -111,7 +104,7 @@ std::vector<std::vector<std::vector<float>>> expPad(const std::vector<std::vecto
 	int newImageY = kCenterY*2 + imageSizeY;
 
 	//inicializar y poblar matriz para resultado--------------------------------------------------	
-	std::vector<std::vector<std::vector<float>>> imgPad(newImageY, std::vector<std::vector<float>>(newImageX, std::vector<float>(channels)));
+	vecthreed imgPad(newImageY, vectwod(newImageX, std::vector<float>(channels)));
 	
 	for (int c=0 ; c<channels ; ++c) {
 		for (int i=kCenterY ; i<kCenterY + imageSizeY ; ++i) {
@@ -147,7 +140,7 @@ std::vector<std::vector<std::vector<float>>> expPad(const std::vector<std::vecto
 }
 
 //Función padding espejo---------------------------------------------------------------------------------------
-std::vector<std::vector<std::vector<float>>> mirrPad(const std::vector<std::vector<std::vector<float>>> &image,const std::vector<std::vector<float>> &kernel)
+vecthreed mirrPad(const vecthreed &image,const vectwod &kernel)
 {
 	int imageSizeY = image.size();
 	int imageSizeX = image[0].size();
@@ -161,7 +154,7 @@ std::vector<std::vector<std::vector<float>>> mirrPad(const std::vector<std::vect
 	int newImageY = kCenterY*2 + imageSizeY;
 
 	//inicializar y poblar matriz para resultado--------------------------------------------------	
-	std::vector<std::vector<std::vector<float>>> imgPad(newImageY, std::vector<std::vector<float>>(newImageX, std::vector<float>(channels)));
+	vecthreed imgPad(newImageY, vectwod(newImageX, std::vector<float>(channels)));
 	
 	for (int c=0 ; c<channels ; ++c) {
 		for (int i=kCenterY ; i<kCenterY + imageSizeY ; ++i) {
@@ -197,7 +190,7 @@ std::vector<std::vector<std::vector<float>>> mirrPad(const std::vector<std::vect
 }
 
 //Función padding repeticiones periódicas------------------------------------------------------------------------------------
-std::vector<std::vector<std::vector<float>>> repPad(const std::vector<std::vector<std::vector<float>>> &image,const std::vector<std::vector<float>> &kernel)
+vecthreed repPad(const vecthreed &image,const vectwod &kernel)
 {
 	int imageSizeY = image.size();
 	int imageSizeX = image[0].size();
@@ -211,7 +204,7 @@ std::vector<std::vector<std::vector<float>>> repPad(const std::vector<std::vecto
 	int newImageY = kCenterY*2 + imageSizeY;
 
 	//inicializar y poblar matriz para resultado--------------------------------------------------	
-	std::vector<std::vector<std::vector<float>>> imgPad(newImageY, std::vector<std::vector<float>>(newImageX, std::vector<float>(channels)));
+	vecthreed imgPad(newImageY, vectwod(newImageX, std::vector<float>(channels)));
 	
 	for (int c=0 ; c<channels ; ++c) {
 		for (int i=kCenterY ; i<kCenterY + imageSizeY ; ++i) {
